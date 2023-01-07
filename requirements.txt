@@ -1,0 +1,5 @@
+requests
+python-decouple
+bs4
+lxml
+pyTelegramBotApi
