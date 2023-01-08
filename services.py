@@ -67,7 +67,7 @@ def write_manga_names(message):
                 if not str(i) in manga_names:
                     id_ = i
                     break
-        manga_names.update({id_: message.text})
+        manga_names.update({id_: message.text.lower()})
         with open('manga_names.json', 'w') as file:
             json.dump(manga_names, file, ensure_ascii=False, indent=4)
         get_restart(chat_id, phrase=f'Манга "{message.text}" добавлена')

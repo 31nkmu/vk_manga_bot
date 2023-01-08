@@ -125,3 +125,15 @@ def get_parser_data(group_list, manga_list):
         for one_data in get_wall_chapters(group_name=group_name, favorite_chapters=manga_list):
             data.append(one_data)
     return data
+
+
+# if __name__ == '__main__':
+#     from services import get_manga_names, get_group_names
+#
+#     group_list = [group for group in get_group_names().values()]
+#     manga_names = [manga for manga in get_manga_names().values()]
+#     print('GROUP_LIST', group_list)
+#     print('MANGA_NAMES', manga_names)
+#     res = get_parser_data(group_list=group_list,
+#                           manga_list=manga_names)
+#     print(res)
