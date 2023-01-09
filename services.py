@@ -164,7 +164,7 @@ def write_chat_ids(chat_id):
         with open('chat_ids.txt', 'w') as file:
             file.write('')
     with open('chat_ids.txt') as file:
-        chat_ids = [int(id_) for id_ in file.read.split('\n')]
+        chat_ids = [int(id_) for id_ in file.read().split('\n') if id_.isdigit()]
     if not chat_id in chat_ids:
         chat_ids.append(chat_id)
         with open('chat_ids.txt', 'w') as file:
