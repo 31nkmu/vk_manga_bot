@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as Bs
 new_chapters = dict()
 
 
-def get_wall_chapters(group_name, favorite_chapters):
+def get_wall_chapters(group_name, favorite_chapters, chat_id):
     global new_chapters
     src = get_src(group_name=group_name)
     make_dir(group_name=group_name)
@@ -16,16 +16,16 @@ def get_wall_chapters(group_name, favorite_chapters):
     chapters = src['response']['items']
 
     # проверяем есть ли файл с ID. если есть делаем проверку и отправляем только новые посты, иначе просто создаем.
-    if not os.path.exists(f'{group_name}/exist_chapter_{group_name}.json'):
+    if not os.path.exists(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json'):
         print('файла с ID глав не существует, создаем файл...')
 
         old_chapters_id = dict()
-        with open(f'{group_name}/exist_chapter_{group_name}.json', 'w', encoding='utf-8') as file:
+        with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json', 'w', encoding='utf-8') as file:
             json.dump(dict(), file, indent=4, ensure_ascii=False)
 
     else:
         print('файл с ID глав уже существует, начинаем выборку свежих глав...')
-        with open(f'{group_name}/exist_chapter_{group_name}.json') as file:
+        with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json') as file:
             old_chapters_id = json.load(file)
 
     res = []
@@ -40,7 +40,7 @@ def get_wall_chapters(group_name, favorite_chapters):
     if new_chapters:
         old_chapters_id.update(new_chapters)
 
-        with open(f'{group_name}/exist_chapter_{group_name}.json', 'w', encoding='utf-8') as file:
+        with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json', 'w', encoding='utf-8') as file:
             json.dump(old_chapters_id, file, indent=4, ensure_ascii=False)
     new_chapters = dict()
     return res
@@ -119,10 +119,16 @@ def get_fresh_chapters(chapters: list, old_chapters_id: str or list,
             print(f'что-то пошло не так с главой под ID {chapter_id}')
 
 
-def get_parser_data(group_list, manga_list):
+def get_parser_data(chat_id):
+    with open(f'groups/{chat_id}.json') as file:
+        group_list = json.load(file)
+    group_list = [group for group in group_list.values()]
+    with open(f'manga_names/{chat_id}.json') as file:
+        manga_names = json.load(file)
+    manga_list = [manga for manga in manga_names.values()]
     data = []
     for group_name in group_list:
-        for one_data in get_wall_chapters(group_name=group_name, favorite_chapters=manga_list):
+        for one_data in get_wall_chapters(group_name=group_name, favorite_chapters=manga_list, chat_id=chat_id):
             data.append(one_data)
     return data
 
