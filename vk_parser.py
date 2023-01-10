@@ -17,17 +17,10 @@ def get_wall_chapters(group_name, favorite_chapters, chat_id):
 
     # проверяем есть ли файл с ID. если есть делаем проверку и отправляем только новые посты, иначе просто создаем.
     if not os.path.exists(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json'):
-        print('файла с ID глав не существует, создаем файл...')
-
         old_chapters_id = dict()
-        with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json', 'w', encoding='utf-8') as file:
-            json.dump(dict(), file, indent=4, ensure_ascii=False)
-
     else:
-        print('файл с ID глав уже существует, начинаем выборку свежих глав...')
         with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json') as file:
             old_chapters_id = json.load(file)
-
     res = []
     for old_chapter in old_chapters_id:
         for ind, favorite_chapter in enumerate(favorite_chapters):
@@ -37,11 +30,10 @@ def get_wall_chapters(group_name, favorite_chapters, chat_id):
         link = get_fresh_chapters(chapters=chapters, old_chapters_id=old_chapters_id, favorite_chapter=favorite_chapter)
         if link:
             res.append(link)
-    if new_chapters:
-        old_chapters_id.update(new_chapters)
+    old_chapters_id.update(new_chapters)
 
-        with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json', 'w', encoding='utf-8') as file:
-            json.dump(old_chapters_id, file, indent=4, ensure_ascii=False)
+    with open(f'{group_name}/exist_chapter_{group_name}_{chat_id}.json', 'w', encoding='utf-8') as file:
+        json.dump(old_chapters_id, file, indent=4, ensure_ascii=False)
     new_chapters = dict()
     return res
 
@@ -69,7 +61,7 @@ def make_dir(group_name):
     :param group_name: имя директории
     """
     if os.path.exists(f'{group_name}'):
-        print(f'директория с именем {group_name} существует')
+        pass
     else:
         os.mkdir(group_name)
 
@@ -95,9 +87,8 @@ def get_fresh_chapters(chapters: list, old_chapters_id: str or list,
     """
     for chapter in chapters:
         chapter_id = chapter['id']
-        print(f'отправляем главу с ID {chapter_id}')
         try:
-            if chapter_id == old_chapters_id.get(favorite_chapter, False):
+            if chapter_id in old_chapters_id.values():
                 return None
             if chapter['attachments']:
                 attachments = chapter['attachments']
@@ -116,7 +107,7 @@ def get_fresh_chapters(chapters: list, old_chapters_id: str or list,
                             new_chapters.update({title: chapter_id})
                             return url
         except Exception:
-            print(f'что-то пошло не так с главой под ID {chapter_id}')
+            pass
 
 
 def get_parser_data(chat_id):
