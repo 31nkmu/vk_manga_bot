@@ -4,22 +4,24 @@ import time
 from loader import bot
 from vk_parser import get_parser_data
 
-with open('chat_ids.txt') as file:
-    chat_id = file.read()
-
-CHAT_ID = chat_id.split('\n')
-
 
 def send_manga_async(bot):
     while True:
-        for id_ in CHAT_ID:
+        try:
+            with open('chat_ids.txt') as file:
+                chat_id = file.read()
+        except FileNotFoundError:
+            chat_id = ''
+        chat_ids = chat_id.split('\n')
+
+        for id_ in chat_ids:
             try:
                 parser_data = get_parser_data(id_)
                 if parser_data:
                     for data in parser_data:
                         bot.send_message(id_, data)
-            except:
-                continue
+            except Exception as ex_:
+                print(ex_)
         time.sleep(10)
 
 

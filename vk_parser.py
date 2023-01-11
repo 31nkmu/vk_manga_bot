@@ -27,7 +27,12 @@ def get_wall_chapters(group_name, favorite_chapters, chat_id):
             if favorite_chapter in old_chapter.lower():
                 favorite_chapters[ind] = old_chapter.lower()
     for favorite_chapter in favorite_chapters:
-        link = get_fresh_chapters(chapters=chapters, old_chapters_id=old_chapters_id, favorite_chapter=favorite_chapter)
+        old_chapter_id = None
+        for chapter, id_ in old_chapters_id.items():
+            if favorite_chapter in chapter:
+                old_chapter_id = id_
+                break
+        link = get_fresh_chapters(chapters=chapters, old_chapter_id=old_chapter_id, favorite_chapter=favorite_chapter)
         if link:
             res.append(link)
     old_chapters_id.update(new_chapters)
@@ -76,28 +81,27 @@ def write_json(group_name, src):
         json.dump(src, file, indent=4, ensure_ascii=False)
 
 
-def get_fresh_chapters(chapters: list, old_chapters_id: str or list,
+def get_fresh_chapters(chapters: list, old_chapter_id: int,
                        favorite_chapter: str):
     """
     находит ссылки новых доступных избранных глав манг
     :param chapters: все главы
-    :param old_chapters_id: список старых глав
+    :param old_chapter_id: id старой главы
     :param favorite_chapter: названия избранной главы
     :return: ссылка на главу
     """
     for chapter in chapters:
         chapter_id = chapter['id']
         try:
-            if chapter_id in old_chapters_id.values():
+            if chapter_id == old_chapter_id:
                 return None
             if chapter['attachments']:
                 attachments = chapter['attachments']
             else:
                 attachments = chapter['copy_history'][0]['attachments']
-            for attachment in attachments:
-                if attachment.get('type') == 'link' and favorite_chapter.lower():
-                    if favorite_chapter.lower().replace('ё', 'е') in attachment['link']['title'].lower().replace('ё',
-                                                                                                                 'е'):
+            if favorite_chapter.lower().replace('ё', 'е') in chapter['text'].lower().replace('ё', 'е'):
+                for attachment in attachments:
+                    if attachment.get('type') == 'link':
                         url = attachment['link']['url']
                         if check_chapter_access(url=url):
                             title = attachment['link']['title'].split(' ')
@@ -106,8 +110,8 @@ def get_fresh_chapters(chapters: list, old_chapters_id: str or list,
                                  word.isalpha() and not 'глав' in word.lower()]).replace('ё', 'е')
                             new_chapters.update({title: chapter_id})
                             return url
-        except Exception:
-            pass
+        except Exception as ex_:
+            continue
 
 
 def get_parser_data(chat_id):
@@ -122,3 +126,10 @@ def get_parser_data(chat_id):
         for one_data in get_wall_chapters(group_name=group_name, favorite_chapters=manga_list, chat_id=chat_id):
             data.append(one_data)
     return data
+
+
+# if __name__ == '__main__':
+#     with open('chat_ids.txt') as file:
+#         chat_ids = file.read().split('\n')
+#     for chat_id in chat_ids:
+#         print('RES', get_parser_data(chat_ids[0]))
