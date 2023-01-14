@@ -1,19 +1,16 @@
 import json
 import os
 
-from loader import bot, CHOICE, markup
-from vk_parser import get_parser_data
+from loader import bot, markup
 
 
-def get_choice(message):
-    chat_id = message.chat.id
-    if message.text == '1':
+@bot.callback_query_handler(func=lambda c: True)
+def get_choice(c):
+    chat_id = c.message.chat.id
+    if c.data == 'add_manga':
         msg = bot.send_message(chat_id, 'Введи название манги, за которой хочешь следить\n')
         bot.register_next_step_handler(msg, write_manga_names)
-    elif message.text == '2':
-        msg = bot.send_message(chat_id, 'Скопируй ссылку на группу вк')
-        bot.register_next_step_handler(msg, write_group_list)
-    elif message.text == '3':
+    elif c.data == 'manga_list':
         manga_names = sorted(get_manga_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
         manga_names = ''.join([f'{k}. {v}\n' for k, v in manga_names])
         if manga_names:
@@ -21,24 +18,7 @@ def get_choice(message):
         else:
             phrase = 'Добавленных манг пока нет'
         get_restart(chat_id, phrase=phrase)
-    elif message.text == '4':
-        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
-        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
-        if group_names:
-            phrase = group_names
-        else:
-            phrase = 'Добавленных групп пока нет'
-        get_restart(chat_id, phrase=phrase)
-    elif message.text == '5':
-        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
-        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
-        if group_names:
-            bot.send_message(chat_id, group_names)
-            msg = bot.send_message(chat_id, 'Выбери номер группы, которую хочешь удалить')
-            bot.register_next_step_handler(msg, del_group)
-        else:
-            get_restart(chat_id, phrase='Добавленных групп пока нет')
-    elif message.text == '6':
+    elif c.data == 'del_manga':
         manga_names = sorted(get_manga_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
         manga_names = ''.join([f'{k}. {v}\n' for k, v in manga_names])
         if manga_names:
@@ -47,16 +27,32 @@ def get_choice(message):
             bot.register_next_step_handler(msg, del_manga)
         else:
             get_restart(chat_id, phrase='Добавленных манг пока нет')
-    elif message.text == '/restart':
+    elif c.data == 'add_group':
+        msg = bot.send_message(chat_id, 'Скопируй ссылку на группу вк')
+        bot.register_next_step_handler(msg, write_group_list)
+    elif c.data == 'group_list':
+        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
+        if group_names:
+            phrase = group_names
+        else:
+            phrase = 'Добавленных групп пока нет'
+        get_restart(chat_id, phrase=phrase)
+    elif c.data == 'del_group':
+        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
+        if group_names:
+            bot.send_message(chat_id, group_names)
+            msg = bot.send_message(chat_id, 'Выбери номер группы, которую хочешь удалить')
+            bot.register_next_step_handler(msg, del_group)
+        else:
+            get_restart(chat_id, phrase='Добавленных групп пока нет')
+    elif c.data == 'cancel':
         get_restart(chat_id)
-    elif message.text == '/send_manga':
-        send_manga(chat_id)
 
 
-def get_restart(chat_id, phrase='Перезапускаем бота'):
-    bot.send_message(chat_id, phrase)
-    msg = bot.send_message(chat_id, CHOICE, reply_markup=markup)
-    bot.register_next_step_handler(msg, get_choice)
+def get_restart(chat_id, phrase='Отмена'):
+    bot.send_message(chat_id, phrase, reply_markup=markup)
 
 
 def write_manga_names(message):
@@ -149,18 +145,6 @@ def del_manga(message):
             phrase = 'Неправильный номер манги, выбери снова'
             msg = bot.send_message(chat_id, phrase)
             bot.register_next_step_handler(msg, del_manga)
-
-
-def send_manga(chat_id):
-    bot.send_message(chat_id, 'Подожди, идет поиск глав')
-    parser_data = get_parser_data(chat_id)
-    if parser_data:
-        for data in parser_data:
-            bot.send_message(chat_id, data)
-    else:
-        bot.send_message(chat_id, 'Новых глав пока нет')
-    msg = bot.send_message(chat_id, CHOICE, reply_markup=markup)
-    bot.register_next_step_handler(msg, get_choice)
 
 
 def write_chat_ids(chat_id):
