@@ -14,21 +14,24 @@ def get_choice(message):
         msg = bot.send_message(chat_id, 'Скопируй ссылку на группу вк')
         bot.register_next_step_handler(msg, write_group_list)
     elif message.text == '3':
-        manga_names = ''.join([f'{k}. {v}\n' for k, v in sorted(get_manga_names(chat_id).items())])
+        manga_names = sorted(get_manga_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        manga_names = ''.join([f'{k}. {v}\n' for k, v in manga_names])
         if manga_names:
             phrase = manga_names
         else:
             phrase = 'Добавленных манг пока нет'
         get_restart(chat_id, phrase=phrase)
     elif message.text == '4':
-        group_names = ''.join([f'{k}. {v}\n' for k, v in sorted(get_group_names(chat_id).items())])
+        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
         if group_names:
             phrase = group_names
         else:
             phrase = 'Добавленных групп пока нет'
         get_restart(chat_id, phrase=phrase)
     elif message.text == '5':
-        group_names = ''.join([f'{k}. {v}\n' for k, v in sorted(get_group_names(chat_id).items())])
+        group_names = sorted(get_group_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        group_names = ''.join([f'{k}. {v}\n' for k, v in group_names])
         if group_names:
             bot.send_message(chat_id, group_names)
             msg = bot.send_message(chat_id, 'Выбери номер группы, которую хочешь удалить')
@@ -36,7 +39,8 @@ def get_choice(message):
         else:
             get_restart(chat_id, phrase='Добавленных групп пока нет')
     elif message.text == '6':
-        manga_names = ''.join([f'{k}. {v}\n' for k, v in sorted(get_manga_names(chat_id).items())])
+        manga_names = sorted(get_manga_names(chat_id).items(), key=lambda dict_: int(dict_[0]))
+        manga_names = ''.join([f'{k}. {v}\n' for k, v in manga_names])
         if manga_names:
             bot.send_message(chat_id, manga_names)
             msg = bot.send_message(chat_id, 'Выбери номер манги, которую хочешь удалить')

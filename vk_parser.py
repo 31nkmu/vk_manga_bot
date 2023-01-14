@@ -106,8 +106,8 @@ def get_fresh_chapters(chapters: list, old_chapter_id: int,
                         if check_chapter_access(url=url):
                             title = attachment['link']['title'].split(' ')
                             title = ' '.join(
-                                [word.lower() for word in title if
-                                 word.isalpha() and not 'глав' in word.lower()]).replace('ё', 'е')
+                                [word.lower().strip('-').strip() for word in title if any(i in ',:;./\\+=-!?' or i.isalpha() for i in word)
+                                 and not 'глав' in word.lower()]).replace('ё', 'е')
                             new_chapters.update({title: chapter_id})
                             return url
         except Exception as ex_:
