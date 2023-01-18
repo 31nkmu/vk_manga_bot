@@ -29,7 +29,7 @@ def get_wall_chapters(group_name, favorite_chapters, chat_id):
     for favorite_chapter in favorite_chapters:
         old_chapter_id = None
         for chapter, id_ in old_chapters_id.items():
-            if favorite_chapter in chapter:
+            if favorite_chapter.strip() in chapter:
                 old_chapter_id = id_
                 break
         link = get_fresh_chapters(chapters=chapters, old_chapter_id=old_chapter_id, favorite_chapter=favorite_chapter)
@@ -128,8 +128,5 @@ def get_parser_data(chat_id):
     return data
 
 
-# if __name__ == '__main__':
-#     with open('chat_ids.txt') as file:
-#         chat_ids = file.read().split('\n')
-#     for chat_id in chat_ids:
-#         print('RES', get_parser_data(chat_ids[0]))
+if __name__ == '__main__':
+    print('RES', get_parser_data('144400282'))
