@@ -92,6 +92,8 @@ def get_fresh_chapters(chapters: list, old_chapter_id: int,
     """
     for chapter in chapters:
         chapter_id = chapter['id']
+        # print('CHAPTER_ID', chapter_id)
+        # print('OLD_CHAPTER_ID', old_chapter_id)
         try:
             if chapter_id == old_chapter_id:
                 return None
@@ -108,7 +110,7 @@ def get_fresh_chapters(chapters: list, old_chapter_id: int,
                             title = ' '.join(
                                 [word.lower().strip('-').strip() for word in title if any(i in ',:;./\\+=-!?' or i.isalpha() for i in word)
                                  and not 'глав' in word.lower()]).replace('ё', 'е')
-                            new_chapters.update({title: chapter_id})
+                            new_chapters.update({title.strip().strip('-'): chapter_id})
                             return url
         except Exception as ex_:
             continue
